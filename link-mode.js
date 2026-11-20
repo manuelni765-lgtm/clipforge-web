@@ -2,7 +2,8 @@
 (() => {
   const $ = id => document.getElementById(id);
   const state = { jobId: null, token: '', base: '', inspected: null, lastUrl: '', clips: [], outputs: [], pollTimer: null, busy: false };
-  const savedBase = localStorage.getItem('clipforge_backend_url') || '';
+  let savedBase = '';
+  try { savedBase = localStorage.getItem('clipforge_backend_url') || ''; } catch (_) {}
   const savedToken = ''; // El token no se persiste: solo permanece en esta pestaña.
   const baseInput = $('backendUrl');
   const tokenInput = $('backendToken');
@@ -22,7 +23,7 @@
     if (!/^https:\/\//i.test(base)) throw new Error('Pega la URL HTTPS del túnel Cloudflare (https://….trycloudflare.com).');
     if (token.length < 32) throw new Error('El token privado debe tener al menos 32 caracteres.');
     state.base = base; state.token = token;
-    localStorage.setItem('clipforge_backend_url', base);
+    try { localStorage.setItem('clipforge_backend_url', base); } catch (_) {}
     return {base, token};
   }
   async function api(path, options={}) {
