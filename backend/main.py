@@ -177,18 +177,22 @@ async def create_job(job_id:str,req:JobRequest):
             video=[f for f in formats if f.get("url") and f.get("vcodec") not in (None,"none")]
             audio=[f for f in formats if f.get("url") and f.get("acodec") not in (None,"none") and f.get("vcodec") in (None,"none")]
             if usable:
-                inputs=[max(usable,key=lambda f:(f.get("height") or 0,f.get("tbr") or 0))["url"]]
+                streams=[max(usable,key=lambda f:(f.get("height") or 0,f.get("tbr") or 0))]
             elif video and audio:
-                inputs=[max(video,key=lambda f:(f.get("height") or 0,f.get("tbr") or 0))["url"],max(audio,key=lambda f:(f.get("abr") or f.get("tbr") or 0))["url"]]
+                streams=[max(video,key=lambda f:(f.get("height") or 0,f.get("tbr") or 0)),max(audio,key=lambda f:(f.get("abr") or f.get("tbr") or 0))]
             elif info.get("url"):
-                inputs=[info["url"]]
+                streams=[{"url":info["url"],"http_headers":info.get("http_headers") or {}}]
             else:
                 raise RuntimeError("yt-dlp no devolvió flujos de video/audio compatibles para este directo.")
             source=folder/"capture.mkv"
             cmd=[FFMPEG,"-y","-hide_banner","-loglevel","error"]
-            for stream in inputs: cmd.extend(["-i",stream])
+            for stream in streams:
+                headers=stream.get("http_headers") or info.get("http_headers") or {}
+                header_text="".join(f"{k}: {v}\r\n" for k,v in headers.items())
+                if header_text: cmd.extend(["-headers",header_text])
+                cmd.extend(["-i",stream["url"]])
             cmd.extend(["-t",str(req.live_window_seconds),"-map","0:v:0"])
-            cmd.extend(["-map","1:a:0?"] if len(inputs)>1 else ["-map","0:a?"])
+            cmd.extend(["-map","1:a:0?"] if len(streams)>1 else ["-map","0:a?"])
             cmd.extend(["-c","copy",str(source)])
             set_progress(job,"capturing",22,"capturing",f"Capturando {req.live_window_seconds} segundos del directo…")
             proc=await asyncio.create_subprocess_exec(*cmd,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE)
