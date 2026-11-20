@@ -48,7 +48,7 @@ def validate_url(value:str)->tuple[str,str]:
     allowed={"youtube.com":"YouTube","www.youtube.com":"YouTube","m.youtube.com":"YouTube","youtu.be":"YouTube","youtube-nocookie.com":"YouTube","www.youtube-nocookie.com":"YouTube","twitch.tv":"Twitch","www.twitch.tv":"Twitch","m.twitch.tv":"Twitch","clips.twitch.tv":"Twitch","kick.com":"Kick","www.kick.com":"Kick"}
     platform=allowed.get(host)
     if not platform: raise HTTPException(400,"Plataforma no admitida. Usa YouTube, Kick o Twitch.")
-    if platform=="YouTube" and not (host.endswith("youtu.be") or any(x in u.path for x in ("/watch","/live/","/shorts/","/embed/"))):
+    if platform=="YouTube" and not (host.endswith("youtu.be") or (any(x in u.path for x in ("/watch","/live/","/shorts/","/embed/")) or u.path.endswith("/live"))):
         raise HTTPException(400,"Pega el enlace de un video o directo de YouTube.")
     if platform=="Kick" and len(u.path.strip("/").split("/"))>2:
         raise HTTPException(400,"Pega el enlace del canal o de la grabación de Kick.")
@@ -165,12 +165,26 @@ async def create_job(job_id:str,req:JobRequest):
             for elapsed in range(req.live_start_delay):
                 set_progress(job,"capturing",8+int(12*elapsed/max(1,req.live_start_delay)),"waiting_live",f"Esperando inicio: {req.live_start_delay-elapsed} s…")
                 await asyncio.sleep(1)
+            if req.live_window_seconds < req.clip_duration:
+                raise RuntimeError("El intervalo de captura debe ser igual o mayor que la duración de cada clip.")
             formats=info.get("formats") or []
             usable=[f for f in formats if f.get("url") and f.get("vcodec") not in (None,"none") and f.get("acodec") not in (None,"none")]
-            stream_url=max(usable,key=lambda f:(f.get("height") or 0,f.get("tbr") or 0))["url"] if usable else info.get("url")
-            if not stream_url: raise RuntimeError("yt-dlp no devolvió una URL de flujo compatible para este directo.")
-            source=folder/"capture.mp4"
-            cmd=[FFMPEG,"-y","-hide_banner","-loglevel","error","-i",stream_url,"-t",str(req.live_window_seconds),"-map","0:v:0","-map","0:a?","-c","copy","-movflags","+faststart",str(source)]
+            video=[f for f in formats if f.get("url") and f.get("vcodec") not in (None,"none")]
+            audio=[f for f in formats if f.get("url") and f.get("acodec") not in (None,"none") and f.get("vcodec") in (None,"none")]
+            if usable:
+                inputs=[max(usable,key=lambda f:(f.get("height") or 0,f.get("tbr") or 0))["url"]]
+            elif video and audio:
+                inputs=[max(video,key=lambda f:(f.get("height") or 0,f.get("tbr") or 0))["url"],max(audio,key=lambda f:(f.get("abr") or f.get("tbr") or 0))["url"]]
+            elif info.get("url"):
+                inputs=[info["url"]]
+            else:
+                raise RuntimeError("yt-dlp no devolvió flujos de video/audio compatibles para este directo.")
+            source=folder/"capture.mkv"
+            cmd=[FFMPEG,"-y","-hide_banner","-loglevel","error"]
+            for stream in inputs: cmd.extend(["-i",stream])
+            cmd.extend(["-t",str(req.live_window_seconds),"-map","0:v:0"])
+            cmd.extend(["-map","1:a:0?"] if len(inputs)>1 else ["-map","0:a?"])
+            cmd.extend(["-c","copy",str(source)])
             set_progress(job,"capturing",22,"capturing",f"Capturando {req.live_window_seconds} segundos del directo…")
             proc=await asyncio.create_subprocess_exec(*cmd,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE)
             started=time.monotonic()
