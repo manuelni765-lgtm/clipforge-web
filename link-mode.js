@@ -192,7 +192,8 @@
     return oldAnalyze && oldAnalyze();
   };
   const oldRender=$('renderBtn').onclick;
-  $('renderBtn').onclick=()=> state.jobId ? renderRemote() : oldRender && oldRender();
+  $('renderBtn').onclick=()=> $('tabUrl').classList.contains('active') && state.jobId ? renderRemote() : oldRender && oldRender();
+  $('tabFile').addEventListener('click',()=>{if(state.jobId){stopPolling();state.jobId=null;state.clips=[];state.outputs=[];$('editorSection').hidden=true;$('doneSection').hidden=true;}const grid=document.querySelector('.editor-grid');if(grid)grid.hidden=false;});
   $('newJobBtn').addEventListener('click',()=>{stopPolling();state.jobId=null;state.clips=[];state.outputs=[];state.inspected=null;const grid=document.querySelector('.editor-grid');if(grid)grid.hidden=false;});
   $('backendUrl').addEventListener('change',()=>{state.inspected=null;});
   $('backendToken').addEventListener('change',()=>{state.inspected=null;});
