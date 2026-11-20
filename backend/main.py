@@ -239,7 +239,7 @@ async def render_job(job_id:str,req:RenderRequest):
             start=max(0,float(c.get("start",0))); length=max(15,min(180,float(c.get("duration",45))))
             if start>=duration: raise RuntimeError("Un clip comienza fuera del video.")
             length=min(length,duration-start); out=folder/f"CLIPFORGE_{i+1:02d}_{int(start)}s.mp4"
-            width=req.resolution; height=round(width*16/9); top=round(height*.36); bottom=height-top
+            width=req.resolution; height=round(width*16/9); top=(round(height*.36)//2)*2; bottom=height-top
             if req.camera_enabled:
                 vf=(f"[0:v]split=2[vc][vg];[vc]crop=iw*{cam['w']}:ih*{cam['h']}:iw*{cam['x']}:ih*{cam['y']},scale={width}:{top}:force_original_aspect_ratio=increase,crop={width}:{top}[ct];"
                     f"[vg]crop=iw*{game['w']}:ih*{game['h']}:iw*{game['x']}:ih*{game['y']},scale={width}:{bottom}:force_original_aspect_ratio=increase,crop={width}:{bottom}[gt];[ct][gt]vstack=inputs=2[v]")
