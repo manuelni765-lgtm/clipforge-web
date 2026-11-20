@@ -1,29 +1,22 @@
 # CLIPFORGE WEB
 
-Aplicación web estática para crear clips verticales a partir de archivos de video. Se publica gratis en GitHub Pages y procesa el video localmente en el navegador; no sube el archivo a un servicio externo.
+Aplicación original publicada en GitHub Pages: https://manuelni765-lgtm.github.io/clipforge-web/
 
-## Funciones incluidas
-- Cargar un archivo local de video compatible con el navegador.
-- Analizar cambios visuales entre fotogramas y sugerir segmentos. Es una heurística, no IA semántica.
-- Elegir cantidad y duración, ajustar inicio y duración de cada clip.
-- Recortar regiones de cámara y gameplay para componer un video vertical 9:16.
-- Exportar con MediaRecorder y descargar clips individualmente.
-- Generar, editar y copiar títulos, descripciones y hashtags usando plantillas locales gratuitas.
+## Modos de trabajo
+- Archivo local: el navegador analiza cambios visuales y exporta clips en el dispositivo.
+- Enlace de YouTube, YouTube Live, Kick y Twitch: usa el backend privado en la carpeta backend. Detecta el estado del enlace, extrae VODs accesibles con yt-dlp o captura un intervalo de un directo con FFmpeg, analiza audio y cambios de escena y exporta MP4 vertical 9:16.
+- Generador local de títulos, descripciones y hashtags para YouTube Shorts, Instagram Reels y TikTok. Usa plantillas gratuitas, no IA remota.
 
-## Límites importantes
-- GitHub Pages sirve HTML, CSS y JavaScript estáticos: no ejecuta Python, FFmpeg ni yt-dlp.
-- Esta versión estática no descarga directamente VODs de Kick o Twitch. Sus páginas requieren un backend y acceso permitido por la plataforma; los enlaces directos MP4/WebM solo sirven si el servidor permite CORS.
-- La detección de momentos es heurística visual; no entiende semánticamente la jugada ni escucha conversaciones.
-- La exportación depende del soporte del navegador para Canvas captureStream, MediaRecorder y AudioContext. El formato puede ser MP4 o WebM según el dispositivo.
-- El procesamiento ocurre en tiempo real en el dispositivo. En teléfonos, videos largos o resoluciones altas pueden agotar memoria o batería; mantener la pestaña abierta durante la exportación.
-- El generador de descripciones usa plantillas, no un modelo de IA.
+## Requisitos del modo enlace
+GitHub Pages no ejecuta Python ni FFmpeg. El computador del usuario debe permanecer encendido con backend y túnel HTTPS activos. Sigue las instrucciones de backend/README.md. El backend escucha solo en localhost y exige un token privado Bearer para inspección, extracción, trabajos, render y descargas. No subas backend/.env ni compartas el token.
 
-## Publicación
-El workflow `.github/workflows/pages.yml` despliega el contenido de la raíz del repositorio en GitHub Pages cuando hay un push a `main`.
+## Procesamiento autorizado
+Solo se aceptan enlaces HTTPS de YouTube, Kick y Twitch. No se usan cookies de terceros ni se eluden DRM, muros de pago, membresías ni controles de acceso. Si el contenido está restringido o la plataforma no lo entrega, el trabajo se detiene y muestra el motivo disponible. El soporte de yt-dlp puede cambiar según la plataforma.
 
-URL pública prevista: https://manuelni765-lgtm.github.io/clipforge-web/
+## Detección y exportación
+La selección inicial combina energía RMS de audio y cambios de escena FFmpeg. Faster-Whisper puede instalarse opcionalmente para transcripción local; no está instalado ni activado por defecto. No se afirma comprensión semántica profunda. Los clips permiten ajustar inicio y duración de 15 a 180 segundos, seleccionar hasta 20 y exportar H.264/AAC vertical 9:16 con audio original sincronizado. Las zonas de cámara y juego se configuran en la interfaz; la cámara debe estar presente en el video original.
 
-## Archivos
-- `index.html`: interfaz.
-- `style.css`: estilos adaptables a móvil.
-- `app.js`: análisis local, edición de recortes, renderizado en navegador y generador de descripciones.
+## Desarrollo
+- Frontend: index.html, style.css, app.js, link-mode.js.
+- Backend: backend/main.py y requirements.txt.
+- GitHub Pages despliega desde la raíz mediante .github/workflows/pages.yml.

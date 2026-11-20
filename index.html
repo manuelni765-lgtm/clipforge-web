@@ -18,18 +18,54 @@
       <section class="hero">
         <div class="eyebrow"><span class="badge-dot"></span> HIGHLIGHT ENGINE · SIN CRÉDITOS DIARIOS</div>
         <h1>De horas de directo<br>a <em>clips que destacan.</em></h1>
-        <p>Transforma tus grabaciones MP4 en Shorts y Reels verticales. Cámara arriba, gameplay abajo, listos para descargar.</p>
+        <p>Pega enlaces de YouTube, YouTube Live, Kick y Twitch. Extrae VODs autorizados o captura un intervalo del directo y conviértelo en clips verticales.</p>
         <div class="hero-badges"><span>◧ 9:16 VERTICAL</span><span>✦ SUGERENCIAS POR CAMBIOS VISUALES</span><span>⬇ MP4 O WEBM</span></div>
       </section>
       <section class="workspace" id="workspace">
         <div class="card setup-card" id="setupCard">
           <div class="card-title"><div><span class="overline">PASO 01</span><h2>Tu fuente de video</h2></div><div class="num">01 / 03</div></div>
-          <div class="tabs" role="tablist"><button class="tab active" id="tabFile" type="button">▤ Subir grabación</button><button class="tab" id="tabUrl" type="button">🔗 Enlace directo MP4</button></div>
+          <div class="tabs" role="tablist"><button class="tab active" id="tabFile" type="button">▤ Subir grabación</button><button class="tab" id="tabUrl" type="button">🔗 YouTube · Kick · Twitch</button></div>
           <div id="fileMode" class="source-area">
             <label for="videoFile" class="dropzone" id="dropZone"><span class="upload-symbol">↑</span><b id="dropTitle">Arrastra tu video aquí</b><span id="dropHint">o toca para elegir un archivo MP4, MOV, MKV, WEBM o AVI</span><small>Tu video se procesa en el navegador de tu teléfono o computador; no se sube a este sitio.</small></label>
             <input id="videoFile" type="file" accept="video/*,.mkv,.avi,.m4v" hidden>
           </div>
-          <div id="urlMode" class="source-area" hidden><label class="form-label" for="videoUrl">URL de un VOD ya terminado</label><div class="input-wrap"><span>↗</span><input id="videoUrl" type="url" placeholder="https://ejemplo.com/mi-directo.mp4"></div><p class="help">Enlaces directos .mp4 públicos pueden funcionar si permiten acceso desde el navegador. Las páginas de Twitch y Kick no funcionan en GitHub Pages sin un backend con acceso autorizado; usa archivos MP4 o enlaces directos que permitan CORS.</p></div>
+          <div id="urlMode" class="source-area" hidden>
+            <label class="form-label" for="videoUrl">Enlace de YouTube, YouTube Live, Kick o Twitch</label>
+            <div class="input-wrap"><span>↗</span><input id="videoUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://www.youtube.com/watch?v=… / kick.com/… / twitch.tv/…"></div>
+            <div class="connection-grid">
+              <div class="field"><label for="backendUrl">Backend HTTPS de tu computador</label><input id="backendUrl" type="url" placeholder="https://….trycloudflare.com" autocomplete="url"></div>
+              <div class="field"><label for="backendToken">Token privado del backend</label><input id="backendToken" type="password" placeholder="Pega el token generado en tu PC" autocomplete="off"></div>
+            </div>
+            <div class="source-actions"><button id="inspectLinkBtn" class="secondary-btn" type="button">Comprobar enlace y conexión</button></div>
+            <p id="sourceStatus" class="source-status" role="status" aria-live="polite" hidden></p>
+            <div id="liveSettings" class="live-settings" hidden>
+              <b>Captura del directo en vivo</b>
+              <div class="connection-grid">
+                <div class="field"><label for="liveStartDelay">Esperar antes de capturar (segundos)</label><input id="liveStartDelay" type="number" min="0" max="3600" step="5" value="0"></div>
+                <div class="field"><label for="liveWindow">Duración del intervalo a capturar (segundos)</label><input id="liveWindow" type="number" min="15" max="3600" step="15" value="300"></div>
+              </div>
+              <p class="help">Se capturan los próximos segundos desde el inicio indicado. No se recupera el tramo anterior del directo.</p>
+            </div>
+            <div class="remote-render-settings">
+              <label class="inline-check"><input id="remoteCamera" type="checkbox" checked> Colocar cámara del streamer arriba y juego abajo</label>
+              <label for="socialPlatform">Texto para redes</label>
+              <select id="socialPlatform"><option value="youtube">YouTube Shorts</option><option value="instagram">Instagram Reels</option><option value="tiktok">TikTok</option></select>
+            </div>
+            <details class="crop-config"><summary>Ajustar zonas de cámara y juego (coordenadas 0–1)</summary>
+              <p class="help">Las zonas se miden respecto al ancho y alto del video original. Ajusta estos valores si la cámara no está en la esquina superior izquierda.</p>
+              <div class="crop-values">
+                <div class="field"><label for="camX">Cámara X</label><input id="camX" type="number" min="0" max="1" step="0.01" value="0.02"></div>
+                <div class="field"><label for="camY">Cámara Y</label><input id="camY" type="number" min="0" max="1" step="0.01" value="0.02"></div>
+                <div class="field"><label for="camW">Cámara ancho</label><input id="camW" type="number" min="0.03" max="1" step="0.01" value="0.32"></div>
+                <div class="field"><label for="camH">Cámara alto</label><input id="camH" type="number" min="0.03" max="1" step="0.01" value="0.30"></div>
+                <div class="field"><label for="gameX">Juego X</label><input id="gameX" type="number" min="0" max="1" step="0.01" value="0.02"></div>
+                <div class="field"><label for="gameY">Juego Y</label><input id="gameY" type="number" min="0" max="1" step="0.01" value="0.25"></div>
+                <div class="field"><label for="gameW">Juego ancho</label><input id="gameW" type="number" min="0.03" max="1" step="0.01" value="0.96"></div>
+                <div class="field"><label for="gameH">Juego alto</label><input id="gameH" type="number" min="0.03" max="1" step="0.01" value="0.72"></div>
+              </div>
+            </details>
+            <p class="help security-note">El backend se ejecuta en tu PC, protegido por token. Tu computador debe permanecer encendido. No procesa contenido privado, DRM ni enlaces a los que no tengas acceso.</p>
+          </div>
           <div class="field" style="margin-top:18px"><label for="gameName">Juego / tema de las descripciones</label><input id="gameName" type="text" maxlength="60" placeholder="Ej.: GTA VI, Fortnite o Valorant" style="width:100%;background:#11141f;border:1px solid #383b48;border-radius:10px;color:#eeeef6;height:42px;padding:0 12px;outline:none"></div>
           <div class="settings-grid">
             <div class="field"><label for="clipCount">Número de clips <strong id="countValue">5</strong></label><input id="clipCount" type="range" min="1" max="20" step="1" value="5"><div class="range-labels"><span>1 clip</span><span>20 clips</span></div></div>
@@ -44,7 +80,7 @@
           <div class="demo-description"><span class="tick">✓</span><span><b>Split-screen vertical automático</b><small>Tú controlas qué zona del video es cámara y cuál es juego.</small></span></div>
         </div>
       </section>
-      <section class="card progress-card" id="progressCard" hidden><span class="overline">PROCESANDO EN TU NAVEGADOR</span><h2 id="progressTitle">Analizando tu grabación…</h2><p id="progressDetail">Preparando archivo de origen.</p><div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div><div class="progress-meta"><span id="progressState">Preparando</span><strong id="progressPercent">0%</strong></div></section>
+      <section class="card progress-card" id="progressCard" hidden><span class="overline">PROCESAMIENTO EN TU COMPUTADOR</span><h2 id="progressTitle">Analizando tu grabación…</h2><p id="progressDetail">Preparando archivo de origen.</p><div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div><div class="progress-meta"><span id="progressState">Preparando</span><strong id="progressPercent">0%</strong></div></section>
       <section id="editorSection" hidden>
         <div class="section-head"><div><span class="overline">PASO 02 · EDITOR DE RECORTES</span><h2>Afina tus mejores momentos</h2><p id="analysisMethod"></p></div><div class="num">02 / 03</div></div>
         <div class="editor-grid">
@@ -59,5 +95,6 @@
   </div>
   <div class="toast" id="toast" role="alert" aria-live="polite"></div>
   <script src="./app.js" defer></script>
+  <script src="./link-mode.js" defer></script>
 </body>
 </html>
