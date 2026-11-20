@@ -261,7 +261,7 @@ async def render_job(job_id:str,req:RenderRequest):
         job["error"]={"status":"failed","reason":"La exportación se detuvo por un error real de FFmpeg.","detail":str(exc)[:800]}
         set_progress(job,"failed",100,"failed",str(exc)[:500])
 
-@app.get("/api/health")
+@app.get("/api/health",dependencies=[Depends(auth)])
 def health():
     return {"ok":True,"service":"CLIPFORGE local backend","auth_required":True,"ffmpeg":bool(shutil.which(FFMPEG)),"ffprobe":bool(shutil.which(FFPROBE)),"yt_dlp":importlib.util.find_spec("yt_dlp") is not None,"whisper_enabled":bool(WHISPER_MODEL and importlib.util.find_spec("faster_whisper"))}
 @app.post("/api/inspect",dependencies=[Depends(auth)])
@@ -296,5 +296,5 @@ def download(job_id:str,filename:str):
     safe=Path(filename).name; path=WORK_DIR/job_id/safe
     if not path.is_file() or not any(x["name"]==safe for x in job.get("outputs",[])): raise HTTPException(404,"Archivo no encontrado.")
     return FileResponse(path,filename=safe,media_type="video/mp4")
-@app.get("/",include_in_schema=False)
+@app.get("/",dependencies=[Depends(auth)],include_in_schema=False)
 def root(): return {"service":"CLIPFORGE private backend","health":"/api/health"}
