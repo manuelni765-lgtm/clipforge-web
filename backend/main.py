@@ -66,15 +66,15 @@ def ydl_info(url:str,download:bool=False,outtmpl:str|None=None,hook=None):
 
 def classify_error(msg:str)->tuple[str,str]:
     low=msg.lower()
-    if any(k in low for k in ("private video","subscribers-only","subscriber-only","members-only","join this channel")):
+    if any(k in low for k in ("private video","subscribers-only","subscriber-only","members-only","join this channel","only available to subscribers","subscriber only")):
         return "restricted","El contenido es privado o requiere una membresía/suscripción autorizada. No se intentó eludir el control."
-    if any(k in low for k in ("sign in","login","authentication","cookies","age-restricted","confirm your age")):
+    if any(k in low for k in ("sign in","login","authentication","cookies","age-restricted","confirm your age","requires authentication","login required")):
         return "restricted","La plataforma exige iniciar sesión, verificar edad o aportar autorización. Este backend no usa cookies ni credenciales de terceros."
-    if any(k in low for k in ("not available in your country","geo-restricted","geo restricted")):
+    if any(k in low for k in ("not available in your country","not available in your region","geo-restricted","geo restricted")):
         return "restricted","La plataforma informa una restricción geográfica para este contenido."
     if any(k in low for k in ("live event will begin","upcoming","premieres in")):
         return "upcoming","El directo todavía no ha comenzado."
-    if any(k in low for k in ("does not exist","not found","404","has been removed","deleted")):
+    if any(k in low for k in ("does not exist","not found","404","has been removed","deleted","video unavailable")):
         return "unavailable","La grabación no existe, fue eliminada o la plataforma no la encuentra."
     return "inaccessible","La plataforma no permitió obtener el contenido. Revisa que el enlace sea público y que tengas acceso."
 
@@ -84,6 +84,9 @@ def public_info(url:str)->dict[str,Any]:
     except Exception as exc:
         state,reason=classify_error(str(exc))
         return {"platform":platform,"status":state,"accessible":False,"reason":reason,"detail":str(exc)[:500]}
+    availability=(info.get("availability") or "").lower()
+    if availability in ("private","premium_only","subscriber_only","needs_auth"):
+        return {"platform":platform,"status":"restricted","accessible":False,"reason":"La plataforma marca este contenido como privado, de membresía o con inicio de sesión obligatorio. No se intentó eludir el control."}
     live_status=info.get("live_status") or ("is_live" if info.get("is_live") else "not_live")
     if info.get("is_live") or live_status=="is_live": state="live"
     elif live_status in ("is_upcoming","upcoming"): state="upcoming"
