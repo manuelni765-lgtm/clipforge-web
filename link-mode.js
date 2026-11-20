@@ -3,7 +3,7 @@
   const $ = id => document.getElementById(id);
   const state = { jobId: null, token: '', base: '', inspected: null, lastUrl: '', clips: [], outputs: [], pollTimer: null, busy: false };
   const savedBase = localStorage.getItem('clipforge_backend_url') || '';
-  const savedToken = localStorage.getItem('clipforge_backend_token') || '';
+  const savedToken = ''; // El token no se persiste: solo permanece en esta pestaña.
   const baseInput = $('backendUrl');
   const tokenInput = $('backendToken');
   if (baseInput) baseInput.value = savedBase;
@@ -23,7 +23,6 @@
     if (token.length < 32) throw new Error('El token privado debe tener al menos 32 caracteres.');
     state.base = base; state.token = token;
     localStorage.setItem('clipforge_backend_url', base);
-    localStorage.setItem('clipforge_backend_token', token);
     return {base, token};
   }
   async function api(path, options={}) {
