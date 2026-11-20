@@ -3,8 +3,8 @@
 GitHub Pages sigue siendo la interfaz. Este servicio corre en TU computador y solo escucha en 127.0.0.1; no lo publiques directamente en Internet.
 
 ## Windows
-1. Instala Python 3.11+ y FFmpeg (incluye ffprobe) y asegúrate de que ambos estén en PATH.
-2. Abre PowerShell en backend y ejecuta Set-ExecutionPolicy -Scope Process Bypass y luego ./start_windows.ps1.
+1. Instala Python 3.11+ y FFmpeg (incluye ffprobe) y asegúrate de que ambos estén en PATH. Instala cloudflared desde la [página oficial de descargas](https://developers.cloudflare.com/tunnel/downloads/).
+2. Abre PowerShell en backend y ejecuta Set-ExecutionPolicy -Scope Process Bypass y luego ./start_windows.ps1. El script instala las dependencias Python dentro de .venv.
 3. La primera ejecución crea backend/.env con un token aleatorio privado. Copia el token que muestra la consola. No subas .env a GitHub.
 4. En otra consola ejecuta cloudflared tunnel --url http://127.0.0.1:8765.
 5. Copia la URL https://....trycloudflare.com que imprime cloudflared y pégala en el campo Backend de CLIPFORGE; pega también el token.
