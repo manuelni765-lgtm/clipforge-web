@@ -254,7 +254,7 @@ async def render_job(job_id:str,req:RenderRequest):
 
 @app.get("/api/health")
 def health():
-    return {"ok":True,"service":"CLIPFORGE local backend","auth_required":True,"ffmpeg":bool(shutil.which(FFMPEG)),"yt_dlp":importlib.util.find_spec("yt_dlp") is not None,"whisper_enabled":bool(WHISPER_MODEL and importlib.util.find_spec("faster_whisper"))}
+    return {"ok":True,"service":"CLIPFORGE local backend","auth_required":True,"ffmpeg":bool(shutil.which(FFMPEG)),"ffprobe":bool(shutil.which(FFPROBE)),"yt_dlp":importlib.util.find_spec("yt_dlp") is not None,"whisper_enabled":bool(WHISPER_MODEL and importlib.util.find_spec("faster_whisper"))}
 @app.post("/api/inspect",dependencies=[Depends(auth)])
 async def inspect(req:InspectRequest):
     clean,_=validate_url(req.url)
