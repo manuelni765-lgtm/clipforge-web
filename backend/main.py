@@ -50,8 +50,10 @@ def validate_url(value:str)->tuple[str,str]:
     if not platform: raise HTTPException(400,"Plataforma no admitida. Usa YouTube, Kick o Twitch.")
     if platform=="YouTube" and not (host.endswith("youtu.be") or (any(x in u.path for x in ("/watch","/live/","/shorts/","/embed/")) or u.path.endswith("/live"))):
         raise HTTPException(400,"Pega el enlace de un video o directo de YouTube.")
-    if platform=="Kick" and len(u.path.strip("/").split("/"))>2:
-        raise HTTPException(400,"Pega el enlace del canal o de la grabación de Kick.")
+    if platform=="Kick":
+        parts=[x for x in u.path.strip("/").split("/") if x]
+        valid_path=(len(parts)<=1 or (len(parts)==2 and parts[0]=="video") or (len(parts)==3 and parts[1]=="videos"))
+        if not valid_path: raise HTTPException(400,"Pega el enlace de un canal Kick o una VOD con formato /video/ID o /canal/videos/ID.")
     return value.strip(),platform
 
 def ydl_info(url:str,download:bool=False,outtmpl:str|None=None,hook=None):
