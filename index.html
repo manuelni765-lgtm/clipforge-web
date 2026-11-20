@@ -72,7 +72,7 @@
             <div class="field"><label for="clipDuration">Duración por clip</label><select id="clipDuration"><option value="15">15 segundos</option><option value="30">30 segundos</option><option value="45" selected>45 segundos</option><option value="60">60 segundos</option><option value="90">90 segundos</option><option value="120">120 segundos</option><option value="180">180 segundos</option></select></div>
           </div>
           <button id="analyzeBtn" class="primary full" type="button"><span>✦</span> Analizar grabación <span>→</span></button>
-          <div class="notice"><span>ⓘ</span><p>La selección automática compara fotogramas del video: es una <strong>heurística visual, no una IA semántica</strong>. Puedes editar los tiempos antes de exportarlos.</p></div>
+          <div class="notice"><span>ⓘ</span><p>Enlaces: análisis de audio y cambios de escena. Archivos locales: comparación visual. No es una IA semántica profunda; puedes editar los tiempos antes de exportar.</p></div>
         </div>
         <div class="card preview-intro" id="introCard">
           <div class="preview-top"><span class="overline">EL FORMATO</span><span class="tag">1080 × 1920 / 720 × 1280</span></div>
@@ -89,8 +89,8 @@
         </div>
         <div class="card candidates-card"><div class="subhead"><div><span class="overline">MOMENTOS ENCONTRADOS</span><h3>Clips sugeridos <span id="clipFound"></span></h3></div><span class="tag">EDITABLES</span></div><div id="clipList" class="clip-list"></div><button id="renderBtn" class="primary full" type="button">▣ Exportar clips verticales <span>→</span></button></div>
       </section>
-      <section class="card done-card" id="doneSection" hidden><span class="overline">PASO 03 · EXPORTACIÓN TERMINADA</span><h2>¡Tus clips están listos! <span>✓</span></h2><p>Descarga los archivos individualmente o todos juntos en ZIP (si está disponible).</p><a id="zipLink" class="primary zip-button" href="#">↓ Descargar todos los clips (.ZIP)</a><div id="downloadList" class="download-list"></div><button id="newJobBtn" type="button" class="secondary-btn">＋ Analizar otro directo</button></section>
-      <footer>CLIPFORGE WEB <span>·</span> El video se procesa en tu navegador <span>·</span> Sin marca de agua <span>·</span> Respeta los derechos de los streamers</footer>
+      <section class="card done-card" id="doneSection" hidden><span class="overline">PASO 03 · EXPORTACIÓN TERMINADA</span><h2>¡Tus clips están listos! <span>✓</span></h2><p>Descarga tus clips individualmente. El ZIP está disponible en el modo de archivo local.</p><a id="zipLink" class="primary zip-button" href="#">↓ Descargar todos los clips (.ZIP)</a><div id="downloadList" class="download-list"></div><button id="newJobBtn" type="button" class="secondary-btn">＋ Analizar otro directo</button></section>
+      <footer>CLIPFORGE WEB <span>·</span> Archivos locales en navegador / enlaces en tu PC <span>·</span> Sin marca de agua <span>·</span> Respeta los derechos de los streamers</footer>
     </main>
   </div>
   <div class="toast" id="toast" role="alert" aria-live="polite"></div>
