@@ -53,7 +53,7 @@
     try {
       message('Comprobando conexión segura con tu computador…');
       const health = await api('/api/health', {method:'GET'});
-      if (!health.ok || !health.ffmpeg || !health.yt_dlp) throw new Error('El backend responde, pero falta FFmpeg o yt-dlp. Revisa la instalación en tu computador.');
+      if (!health.ok || !health.ffmpeg || !health.ffprobe || !health.yt_dlp) throw new Error('El backend responde, pero falta FFmpeg/ffprobe o yt-dlp. Revisa la instalación en tu computador.');
       const result = await api('/api/inspect', {method:'POST',body:JSON.stringify({url})});
       state.inspected = result; state.lastUrl = url;
       if (!result.accessible) {
