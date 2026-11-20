@@ -189,9 +189,9 @@ async def create_job(job_id:str,req:JobRequest):
                 if d.get("status")=="downloading":
                     total=d.get("total_bytes") or d.get("total_bytes_estimate") or 0
                     done=d.get("downloaded_bytes") or 0
-                    pct=int(10+45*done/total) if total else 25
-                    set_progress(job,"downloading",pct,"downloading",f"Descarga: {pct}% · {d.get('_speed_str','')} · {d.get('_eta_str','')}")
-                elif d.get("status")=="finished": set_progress(job,"analyzing",58,"merging","Descarga completa. Preparando el video…")
+                    pct=int(10+45*done/total) if total else job.get("progress",20)
+                    detail = (f"Descarga: {pct}% · {d.get('_speed_str', '')} · {d.get('_eta_str', '')}" if total else "Descarga en curso; tamaño total no informado; porcentaje exacto no disponible.")
+                    set_progress(job,"downloading",pct,"downloading",detail)
             await asyncio.to_thread(ydl_info,url,True,template,hook)
             found=[p for p in folder.glob("source.*") if p.suffix.lower() not in (".part",".ytdl")]
             if not found: raise RuntimeError("yt-dlp terminó sin crear un archivo de video.")
