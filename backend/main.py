@@ -196,9 +196,12 @@ async def create_job(job_id:str,req:JobRequest):
             cmd.extend(["-c","copy",str(source)])
             set_progress(job,"capturing",22,"capturing",f"Capturando {req.live_window_seconds} segundos del directo…")
             proc=await asyncio.create_subprocess_exec(*cmd,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE)
-            started=time.monotonic()
+            started=time.monotonic(); deadline=started+req.live_window_seconds+180
             while proc.returncode is None:
                 elapsed=int(time.monotonic()-started)
+                if time.monotonic()>deadline:
+                    proc.kill(); _,err=await proc.communicate()
+                    raise RuntimeError("La captura del directo excedió el límite de tiempo: "+err.decode(errors="replace")[-500:])
                 set_progress(job,"capturing",22+int(28*min(1,elapsed/max(1,req.live_window_seconds))),"capturing",f"Captura: {min(elapsed,req.live_window_seconds)}/{req.live_window_seconds} segundos…")
                 try: await asyncio.wait_for(proc.wait(),timeout=1)
                 except asyncio.TimeoutError: pass
